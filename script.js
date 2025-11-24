@@ -124,7 +124,6 @@ async function createCompany() {
 }
 
 async function refreshData() {
-  // 1. Bloqueio extra de segurança antes de chamar API
   if (document.getElementById("btnRefresh").disabled) return;
 
   const loading = document.getElementById("loadingOverlay");
@@ -138,14 +137,21 @@ async function refreshData() {
 
     const data = await res.json();
     if (res.ok) {
+      // Mostra alerta
       alert(`Sucesso! ${data.totalSaved} novos dados analisados.`);
 
-      // ⭐ NOVO: Salva a hora atual no localStorage
+      // --- NOVO CÓDIGO AQUI ---
+
+      // 1. Salva o sentimento no navegador para não perder no F5
+      if (data.overallSentiment) {
+        localStorage.setItem("last_sentiment", data.overallSentiment);
+        updateSentimentBadge(data.overallSentiment);
+      }
+
+      // ------------------------
+
       localStorage.setItem("last_refresh_time", Date.now().toString());
-
-      // ⭐ NOVO: Inicia a contagem regressiva visual
       checkRefreshCooldown();
-
       loadDashboardData(1);
     } else {
       alert("Erro ao atualizar dados.");
@@ -349,4 +355,23 @@ function updateButtonTimer(btn, ms) {
   const secStr = seconds.toString().padStart(2, "0");
 
   btn.innerHTML = `⏳ Aguarde ${minStr}:${secStr}`;
+}
+
+// --- Função Visual do Sentimento Geral ---
+function updateSentimentBadge(sentiment) {
+  const badge = document.getElementById("sentimentBadge");
+  if (!badge || !sentiment) return;
+
+  // Tradução e Cores
+  const map = {
+    POSITIVE: { text: "😊 Reputação Positiva", color: "bg-success" },
+    NEGATIVE: { text: "😡 Reputação Negativa", color: "bg-danger" },
+    NEUTRAL: { text: "😐 Reputação Neutra", color: "bg-secondary" },
+  };
+
+  const info = map[sentiment] || map["NEUTRAL"];
+
+  // Atualiza o HTML
+  badge.innerText = info.text;
+  badge.className = `badge ms-3 ${info.color}`; // Remove d-none e aplica cor
 }
