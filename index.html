@@ -20,12 +20,20 @@
 
       <ul class="nav nav-tabs mb-3" id="authTabs">
         <li class="nav-item">
-          <a class="nav-link active" href="#" onclick="toggleAuth('login')"
+          <a
+            class="nav-link active"
+            id="tab-login"
+            href="#"
+            onclick="toggleAuth('login')"
             >Login</a
           >
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#" onclick="toggleAuth('register')"
+          <a
+            class="nav-link"
+            id="tab-register"
+            href="#"
+            onclick="toggleAuth('register')"
             >Criar Conta</a
           >
         </li>
@@ -40,6 +48,12 @@
           <label class="form-label">Senha</label>
           <input type="password" id="password" class="form-control" required />
         </div>
+
+        <div class="mb-3 d-none" id="confirmPasswordGroup">
+          <label class="form-label">Confirmar Senha</label>
+          <input type="password" id="confirmPassword" class="form-control" />
+        </div>
+
         <button type="submit" class="btn btn-primary w-100" id="submitBtn">
           Entrar
         </button>
@@ -49,20 +63,34 @@
 
     <script src="script.js"></script>
     <script>
-      // alternar abas
+      // Variável global para controle
       let isLogin = true;
+
       function toggleAuth(mode) {
         isLogin = mode === "login";
+
+        // Remove active de todos e adiciona no correto pelo ID (resolve o erro 'target undefined')
         document
           .querySelectorAll(".nav-link")
           .forEach((l) => l.classList.remove("active"));
-        event.target.classList.add("active");
-        document.getElementById("submitBtn").innerText = isLogin
-          ? "Entrar"
-          : "Cadastrar";
+
+        if (isLogin) {
+          document.getElementById("tab-login").classList.add("active");
+          document.getElementById("submitBtn").innerText = "Entrar";
+          document
+            .getElementById("confirmPasswordGroup")
+            .classList.add("d-none");
+          document.getElementById("confirmPassword").required = false;
+        } else {
+          document.getElementById("tab-register").classList.add("active");
+          document.getElementById("submitBtn").innerText = "Cadastrar";
+          document
+            .getElementById("confirmPasswordGroup")
+            .classList.remove("d-none");
+          document.getElementById("confirmPassword").required = true;
+        }
       }
 
-      // Redireciona se logado
       if (localStorage.getItem("who_token"))
         window.location.href = "dashboard.html";
     </script>
