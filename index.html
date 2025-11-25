@@ -4,29 +4,78 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Who IA - Login</title>
+
+    <!-- Bootstrap -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+
+    <!-- Estilos customizados -->
+    <style>
+      body {
+        background: linear-gradient(135deg, #140D72, #25E4F2);
+      }
+
+      .auth-card {
+        width: 400px;
+        border-radius: 18px;
+      }
+
+      .logo {
+        width: 160px;
+        height: auto;
+      }
+
+      .nav-tabs .nav-link.active {
+        font-weight: 600;
+        color: #0d6efd !important;
+        border-bottom: 3px solid #0d6efd !important;
+      }
+
+      .nav-tabs .nav-link {
+        color: #6c757d;
+      }
+
+            /* Botão personalizado */
+      .btn-who {
+        background: #253fff;
+        color: white;
+        border: none;
+        padding: 10px 0;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        transition: 0.3s ease;
+      }
+
+      .btn-who:hover {
+        background: #2317c4;
+        color: white;
+        transform: scale(1.02);
+      }
+    </style>
   </head>
-  <body
-    class="bg-light d-flex align-items-center justify-content-center vh-100"
-  >
-    <div class="card shadow p-4" style="width: 400px">
+
+  <body class="d-flex align-items-center justify-content-center vh-100">
+    <div class="card shadow p-4 auth-card">
       <div class="text-center mb-4">
-        <h3>🤖 Who IA</h3>
-        <p class="text-muted">Monitoramento de Reputação</p>
+        <img src="whoai-logo.png" alt="Logo Who IA" class="logo mb-2" />
+        <!-- <h4 class="mt-2">Who IA</h4> -->
+        <p class="text-muted m-0">Monitoramento de Reputação</p>
       </div>
 
-      <ul class="nav nav-tabs mb-3" id="authTabs">
+      <!-- Tabs -->
+      <ul class="nav nav-tabs mb-4" id="authTabs">
         <li class="nav-item">
           <a
             class="nav-link active"
             id="tab-login"
             href="#"
             onclick="toggleAuth('login')"
-            >Login</a
           >
+            Login
+          </a>
         </li>
         <li class="nav-item">
           <a
@@ -34,42 +83,45 @@
             id="tab-register"
             href="#"
             onclick="toggleAuth('register')"
-            >Criar Conta</a
           >
+            Criar Conta
+          </a>
         </li>
       </ul>
 
+      <!-- Formulário -->
       <form id="authForm">
         <div class="mb-3">
-          <label class="form-label">Email</label>
-          <input type="email" id="email" class="form-control" required />
+          <label for="email" class="form-label">Email</label>
+          <input type="email" id="email" class="form-control" placeholder="Digite seu email" required />
         </div>
+
         <div class="mb-3">
-          <label class="form-label">Senha</label>
-          <input type="password" id="password" class="form-control" required />
+          <label for="password" class="form-label">Senha</label>
+          <input type="password" id="password" class="form-control" placeholder="Digite sua senha" required />
         </div>
 
         <div class="mb-3 d-none" id="confirmPasswordGroup">
-          <label class="form-label">Confirmar Senha</label>
-          <input type="password" id="confirmPassword" class="form-control" />
+          <label for="confirmPassword" class="form-label">Confirmar Senha</label>
+          <input type="password" id="confirmPassword" class="form-control" placeholder="Confirme sua senha" />
         </div>
 
-        <button type="submit" class="btn btn-primary w-100" id="submitBtn">
+        <button type="submit" class="btn btn-who w-100" id="submitBtn">
           Entrar
         </button>
       </form>
+
       <div id="alertBox" class="alert alert-danger mt-3 d-none"></div>
     </div>
 
     <script src="script.js"></script>
+
     <script>
-      // Variável global para controle
       let isLogin = true;
 
       function toggleAuth(mode) {
         isLogin = mode === "login";
 
-        // Remove active de todos e adiciona no correto pelo ID (resolve o erro 'target undefined')
         document
           .querySelectorAll(".nav-link")
           .forEach((l) => l.classList.remove("active"));
