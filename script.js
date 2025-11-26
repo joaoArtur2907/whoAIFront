@@ -198,26 +198,67 @@ async function deleteCompany() {
   }
 }
 
-async function createCompany() {
-  const name = document.getElementById("companyName").value;
-  if (!name) return showToast("Digite um nome.");
+// Variável para guardar o nome temporariamente enquanto o usuário decide
+let pendingCompanyName = "";
+let modalInstance = null; // Para controlar o abrir/fechar do modal
 
-  if (!confirm(`Confirmar criação da empresa "${name}"?`)) return;
+// 1. Função chamada pelo botão "Salvar" do formulário
+function createCompany() {
+  const nameInput = document.getElementById("companyName");
+  const name = nameInput.value.trim();
+
+  if (!name) return showToast("Digite um nome.", "warning");
+
+  // Guarda o nome na variável global
+  pendingCompanyName = name;
+
+  // Prepara e mostra o Modal
+  const modalEl = document.getElementById("confirmationModal");
+  const msgEl = document.getElementById("modalMessage");
+
+  msgEl.innerText = `Confirmar criação da empresa "${name}"?`;
+
+  modalInstance = new bootstrap.Modal(modalEl);
+  modalInstance.show();
+}
+
+// 2. Função chamada APENAS quando clica em "Confirmar" DENTRO do Modal
+// Precisamos adicionar o "listener" para esse botão uma única vez
+document.addEventListener("DOMContentLoaded", () => {
+  const btnConfirm = document.getElementById("btnConfirmAction");
+  if (btnConfirm) {
+    btnConfirm.addEventListener("click", async () => {
+      // Esconde o modal
+      if (modalInstance) modalInstance.hide();
+
+      // Executa a criação real
+      await executeCreateCompany();
+    });
+  }
+});
+
+// 3. A lógica real de ir no backend (Separada)
+async function executeCreateCompany() {
+  if (!pendingCompanyName) return;
 
   try {
     const res = await fetch(`${API_URL}/company`, {
       method: "POST",
       headers: getHeaders(),
-      body: JSON.stringify({ name }),
+      body: JSON.stringify({ name: pendingCompanyName }),
     });
 
     if (res.ok) {
-      location.reload();
+      showToast("Empresa criada com sucesso!", "success");
+      setTimeout(() => location.reload(), 1500); // Espera um pouco para ler o toast
     } else {
-      showToast("Erro ao criar empresa.");
+      showToast("Erro ao criar empresa.", "danger");
     }
   } catch (err) {
     console.error(err);
+    showToast("Erro de conexão.", "danger");
+  } finally {
+    pendingCompanyName = ""; // Limpa a variável
   }
 }
 
