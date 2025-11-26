@@ -406,3 +406,96 @@ function updateSentimentBadge(sentiment) {
   badge.innerText = info.text;
   badge.className = `badge ms-2 ${info.color}`;
 }
+
+
+// Função para buscar a Amostra Grátis
+async function fetchFreeSample(event) {
+  // 1. Impede o formulário de recarregar a página
+  if(event) event.preventDefault();
+
+  const input = document.getElementById("sampleCompanyInput");
+  const resultArea = document.getElementById("sampleResults");
+  const btn = document.getElementById("btnSample");
+  
+  const companyName = input.value.trim();
+
+  if (!companyName) {
+    alert("Por favor, digite o nome de uma empresa.");
+    return;
+  }
+
+  // UI de Carregamento
+  btn.disabled = true;
+  const originalBtnText = btn.innerHTML; // Salva o texto original
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Analisando...';
+  
+  resultArea.innerHTML = ''; 
+  resultArea.classList.remove("d-none"); 
+
+  try {
+    // Certifique-se que API_URL está definida (ex: "http://localhost:3000")
+    const res = await fetch(`${API_URL}/sample?company=${encodeURIComponent(companyName)}`);
+    const response = await res.json();
+
+    if (res.ok) {
+      renderSampleResults(response.data);
+    } else {
+      resultArea.innerHTML = `<div class="alert alert-warning">Não encontramos dados para "${companyName}".</div>`;
+    }
+
+  } catch (error) {
+    console.error(error);
+    resultArea.innerHTML = `<div class="alert alert-danger">Erro de conexão com o servidor.</div>`;
+  } finally {
+    // Restaura o botão
+    btn.disabled = false;
+    btn.innerHTML = originalBtnText;
+  }
+}
+
+// Função auxiliar para desenhar os cards (Pode manter a mesma de antes)
+function renderSampleResults(reviews) {
+  const container = document.getElementById("sampleResults");
+  
+  if (!reviews || reviews.length === 0) {
+    container.innerHTML = '<p class="text-white text-center">Nenhuma avaliação encontrada.</p>';
+    return;
+  }
+
+  let html = '<h5 class="mb-3 text-center text-white">🔎 Resultados da Análise Gratuita:</h5><div class="row g-3">';
+
+  reviews.forEach(review => {
+    let badgeClass = "bg-secondary";
+    if (review.sentiment === "POSITIVE") badgeClass = "bg-success";
+    if (review.sentiment === "NEGATIVE") badgeClass = "bg-danger";
+
+    html += `
+      <div class="col-md-6">
+        <div class="card h-100 shadow-sm border-0" style="background: rgba(255,255,255,0.95);">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="badge bg-light text-dark border"><i class="bi bi-globe"></i> ${review.source || "Web"}</span>
+              <span class="badge ${badgeClass}">${review.sentiment}</span>
+            </div>
+            <p class="card-text small text-muted">"${review.content}"</p>
+            <small class="text-secondary fw-bold">- ${review.author || "Anônimo"}</small>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  html += '</div>';
+  
+  // CTA para login
+  html += `
+    <div class="text-center mt-4 p-3 rounded" style="background: rgba(0,0,0,0.2);">
+      <p class="text-white mb-2">Isso é apenas uma amostra do que a IA pode fazer!</p>
+      <a href="index.html" class="btn btn-warning fw-bold px-4">
+        🚀 Ver Análise Completa + Consultoria IA
+      </a>
+    </div>
+  `;
+
+  container.innerHTML = html;
+}
